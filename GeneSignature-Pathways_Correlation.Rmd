@@ -6,7 +6,7 @@ output: html_document
 
 params:
   workdir: "E:\\PostGraduate\\Botao\\Code_Verification\\SignatureGenes_GO-PW_Correlation"
-  libdir: "E:\\Code_Example\\R\\GeneSignature\\GeneSignature-Pathways_Correlation\\lib"
+  libdir: "E:\\GithubRepository\\Signature-Correlation\\lib"
   resultdir: "\\results\\"
   picdir: "\\pics\\"
   
