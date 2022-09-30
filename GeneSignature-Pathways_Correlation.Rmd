@@ -104,7 +104,7 @@ picdir <- paste(params$workdir, params$picdir, sep="")
 if (!dir.exists(resultdir)){
   dir.create(resultdir)
 } else {
-  warn(logger, "警告：即将覆盖已有文件：", descript_work, )
+  warn(logger, "警告：即将覆盖已有文件：", descript_work)
 }
 if (!dir.exists(picdir)){dir.create(picdir)}
 
