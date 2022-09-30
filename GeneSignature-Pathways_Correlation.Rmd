@@ -1,0 +1,413 @@
+---
+title: "GeneSignature-Pathways_Correlation"
+author: "Botao Wang"
+date: '2022-09-02'
+output: html_document
+
+params:
+  workdir: "E:\\PostGraduate\\Botao\\Code_Verification\\SignatureGenes_GO-PW_Correlation"
+  libdir: "E:\\Code_Example\\R\\GeneSignature\\GeneSignature-Pathways_Correlation\\lib"
+  resultdir: "\\results\\"
+  picdir: "\\pics\\"
+  
+  expression_file: ".\\data\\TCGA_Brain-GBM_AllSample_Gene-Name_Expression_tpm_unstranded_2022-09-27.csv"
+  exprType: "TPM"
+  GOGeneset: ".\\data\\goGeneSet_normalized.gmt"
+  PWGeneset: ".\\data\\pathwayGeneSet_normalized.gmt"
+  # whether need to Normalize or not
+  GeneSet_Name_Normalized: TRUE
+  GeneNameAnno: ".\\data\\Homo_sapiens.gene_info.csv"
+  
+  SignatureGenes_Name: "m6A_Signature_Genes"
+  SignatureGenes: "METTL3,METTL14,WTAP,RBM15,ZC3H13,KIAA1429,METTL16,FTO,ALKBH5"
+  corAnalysis_Method: "pearson"
+  
+  # params for func : get_Geneset_Score
+  calOrder: "normFirst"
+  # "calFirst" or "normFirst"
+  # calFirst means calculate signature mean/median expression first
+  pickMethod: "mean"
+  log: TRUE
+  exp: FALSE
+
+---
+
+# README
+
+```{r setup, include=FALSE}
+# rm(list = ls())
+# .rs.restartR()
+
+library("knitr")
+library("limma")
+library("ComplexHeatmap")
+library("circlize")
+library("log4r")
+
+knitr::opts_chunk$set(echo = TRUE)
+#* HTML显示结果时同时显示代码
+
+dir.exists(params$workdir)
+knitr::opts_knit$set(root.dir = params$workdir)
+#* 设定工作目录
+getwd()
+
+source(file.path(params$lib, "GeneSignature-Pathways_Correlation_Function.R"))
+
+# entering Genes for Gene Signature
+SignatureGenes <- unlist(strsplit(params$SignatureGenes,split=","))
+```
+
+## Prepare direction
+
+```{r prepare direction}
+
+resultdir <- paste(params$workdir, params$resultdir, sep="")
+picdir <- paste(params$workdir, params$picdir, sep="")
+
+if (!dir.exists(resultdir)){dir.create(resultdir)}
+if (!dir.exists(picdir)){dir.create(picdir)}
+
+```
+
+
+## Prepare log
+
+```{r prepare log}
+
+logdir <- paste(params$workdir, "\\log\\", sep="")
+if (!dir.exists(logdir)){dir.create(logdir)}
+logfile <- paste(logdir, "perform.log", sep="")
+if (!file.exists(logfile)){file.create(logfile)}
+
+logger <- create.logger(logfile = paste(logdir, "perform.log", sep=""),
+                        level="INFO")
+
+descript_work <- paste("[    "
+                       , unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+                       , "_", params$exprType
+                       , "_", params$corAnalysis_Method
+                       , "_", params$pickMethod
+                       , "_Log2[", params$log, "]"
+                       , "_Exp[", params$exp, "]"
+                       , "_", params$calOrder
+                       , "    ]"
+                       , sep="")
+
+info(logger, 
+     "------------------------------------------",
+     descript_work,
+     "------------------------------------------")
+info(logger, "START PROJECT:")
+info(logger, "Signature Name:\t", params$SignatureGenes_Name)
+info(logger, "Signature Genes:\t", params$SignatureGenes)
+
+```
+
+## Prepare data
+
+读入数据，包括：
+
+  * 表达谱数据
+  * GO基因集
+  * Pathway基因集
+  * 基因Symbol和同名对应集
+  
+
+```{r Preparation}
+# Read in expression data
+expr <- read.csv(params$expression_file, row.names=1, check.names=F)
+info(logger, "Expression Data:\t", params$expression_file)
+info(logger, "Expression Data Type:\t", params$exprType)
+mode(expr[1,1]) == list("numeric")
+
+
+# Read in Gene Sets from GO&PW
+info(logger, "Gene Sets normalized to Symbol:\t", params$GeneSet_Name_Normalized)
+
+goGeneSet <- readGMT(params$GOGeneset, normalized=params$GeneSet_Name_Normalized)
+info(logger, "GO Gene Sets:\t", params$GOGeneset)
+info(logger, paste("GO共有", length(goGeneSet), "个基因集"))
+
+pathwayGeneSet <- readGMT(params$PWGeneset, normalized=params$GeneSet_Name_Normalized)
+info(logger, "Pathway Gene Sets:\t", params$PWGeneset)
+info(logger, paste("Pathway共有", length(pathwayGeneSet), "个基因集"))
+
+
+# Read in Gene Name Annotation
+geneNameAnno <- read.csv(params$GeneNameAnno, check.names = F)
+```
+
+## Gene Name Conversion
+
+```{r GeneName Conversion}
+
+geneNameAnno_list <- strsplit(geneNameAnno$Synonyms, split="\\|")
+names(geneNameAnno_list) <- geneNameAnno$Symbol
+
+not_Symbol_Num <- 0
+not_convert_Num <- 0
+convert_num <- 0
+not_convert_gene <- c()
+# 遍历检查每一个SignatureGene的名称
+for (i in 1:length(SignatureGenes)){
+  
+  # 检查是否为Gene Symbol
+  if (!(SignatureGenes[i] %in% names(geneNameAnno_list))){
+    
+    not_Symbol_Num <- not_Symbol_Num + 1
+    
+    # 检查是否为别称
+    for (j in 1:length(geneNameAnno_list)){
+      
+      if (SignatureGenes[i] %in% geneNameAnno_list[[j]]){
+        
+        # 更正名称为Symbol
+        SignatureGenes[i] <- names(geneNameAnno_list)[j]
+        convert_num <- convert_num + 1
+      } else {
+        not_convert_Num <- not_convert_Num + 1
+        not_convert_gene <- c(not_convert_gene, SignatureGenes[i])
+      }
+    }
+  }
+}
+
+
+if (!is.null(not_convert_gene)){
+  not_convert_gene <- paste(not_convert_gene, sep=",")
+}
+if (not_Symbol_Num != convert_num){
+  info(logger,
+       paste("Signature Genes共有", not_Symbol_Num, "个基因需要转化为Symbol，其中",
+             convert_num, "个转换成功，",
+             not_convert_Num, "个转换失败，为：",
+             not_convert_gene))
+} else {
+  info(logger,
+       paste("Signature Genes共有", not_Symbol_Num, "个基因需要转化为Symbol，全部转化成功"))
+}
+
+```
+
+## Calculate SignatrueGenes Scores
+
+分别计算SignatureGenes和GO/PATHWAY的Score值
+
+```{r calculate GS Scores}
+info(logger, "Calculation Method:\t", params$pickMethod)
+info(logger, "Log:\t", params$log)
+info(logger, "Exp:\t", params$exp)
+info(logger, "Calculation Order:\t", params$calOrder)
+
+
+# precreate a data.frame for Signature Gene Scores
+SG_Scores_DF <- data.frame(names=colnames(expr))
+SG_Scores_DF <- data.frame(t(SG_Scores_DF))
+colnames(SG_Scores_DF) <- SG_Scores_DF[1,]
+
+# Signature Genes Score
+####################################################
+
+###############################################################################
+# debug                                                                       #
+#                                                                             #
+# length(SignatureGenes)                                                      #
+# length(rownames(expr[rownames(expr) %in% SignatureGenes,]))                 #
+# setdiff(SignatureGenes, rownames(expr[rownames(expr) %in% SignatureGenes,]))#
+#                                                                             #                                
+# 
+# 
+# SignatureGenes_expr <- expr[rownames(expr) %in% SignatureGenes,]
+# SignatureGenes_expr <- log2(SignatureGenes_expr+1)
+# Score <- apply(SignatureGenes_expr,1,function(tmp){
+#         scale(tmp)
+#       })
+# Score <- apply(Score, 1, function(tmp){ mean(tmp) })
+# Score1 <- Score+1
+# Score2 <- log2(Score1)
+# 
+# a <- data.frame(a=c(1,2,3), b=c(3,4,5), c=c(6,7,8))
+# score1 <- apply(a, 1, function(tmp){median(tmp)}) #按行操作
+# score2 <- apply(a, 2, function(tmp){median(tmp)}) #按列操作
+###############################################################################
+
+# Calculate Gene Signature scores
+SGscores.raw <- get_GeneSignature_Score(expr, SignatureGenes,
+                                        pickMethod=params$pickMethod,
+                                        log=params$log,
+                                        exp=params$exp,
+                                        calOrder=params$calOrder)
+# Scaled scores
+#=============================================
+if (params$calOrder == "calFirst"){
+  SGscores <- as.numeric(scale(SGscores.raw))
+  names(SGscores) <- names(SGscores.raw)
+  names(SGscores) == colnames(expr)
+} else if (params$calOrder == "normFirst") {
+  SGscores <- SGscores.raw
+}
+
+
+
+SG_Scores_DF <- rbind(SG_Scores_DF, SGscores)
+SG_Scores_DF <- SG_Scores_DF[-1,]
+rownames(SG_Scores_DF)[1] <- params$SignatureGenes_Name
+```
+
+## Calculate GO&PW Gene-set Scores
+
+```{r calculate GO&PW-set scores}
+
+###############################################################################
+# debug                                                                       #
+#                                                                             #
+###############################################################################
+
+tryCatch({
+  GO_Scores_DF <- get_Geneset_Score(
+      goGeneSet,
+      expr,
+      pickMethod = params$pickMethod,
+      log = params$log,
+      exp = params$exp,
+      calOrder = params$calOrder
+  )
+  info(logger, paste("GO共计算了", length(rownames(GO_Scores_DF)), "个基因集"))
+  
+  PW_Scores_DF <- get_Geneset_Score(
+      pathwayGeneSet,
+      expr,
+      pickMethod = params$pickMethod,
+      log = params$log,
+      exp = params$exp,
+      calOrder = params$calOrder
+  )
+  info(logger, paste("Pathway共计算了", length(rownames(PW_Scores_DF)), "个基因集"))
+  
+}, warning=function(w){
+  log4r::warn(logger, w)
+  
+}, error=function(e){
+  log4r::error(logger, e)
+})
+
+# GO_Scores_DF <- get_Geneset_Score(
+#   goGeneSet,
+#   expr,
+#   pickMethod = params$pickMethod,
+#   log = params$log,
+#   exp = params$exp,
+#   calOrder = params$calOrder
+# )
+# info(logger, paste("GO共计算了", length(rownames(GO_Scores_DF)), "个基因集"))
+# 
+# 
+# PW_Scores_DF <- get_Geneset_Score(
+#   pathwayGeneSet,
+#   expr,
+#   pickMethod = params$pickMethod,
+#   log = params$log,
+#   exp = params$exp,
+#   calOrder = params$calOrder
+# )
+# info(logger, paste("Pathway共计算了", length(rownames(PW_Scores_DF)), "个基因集"))
+
+
+```
+
+
+## Merge SignatureGenes and GO&KEGG data of Scores
+
+```{r Merge Scores}
+# merge SG&GO&PW scores dataframe
+scores_DF <- rbind(SG_Scores_DF, GO_Scores_DF, PW_Scores_DF)
+
+scores_DF1 <- data.frame(t(scores_DF),stringsAsFactors=F)
+# 转置之后数据变为矩阵，需要重新变成数据框，stringsAsFactors=F，否则下一步转数值型会出错
+scores_DF <- as.data.frame(lapply(scores_DF1, as.numeric))
+rownames(scores_DF) <- rownames(scores_DF1)
+# scores_DF <- apply(scores_DF,2,as.numeric)
+# 检查是否为数值型矩阵
+if (class(scores_DF[1,1]) == "numeric"){
+  info(logger, "Signatures Scores为数值型矩阵")
+} else {
+  error(logger, "错误！Signature Scores不是数值型矩阵！")
+}
+# class(scores_DF[1,1]) == list("numeric")
+
+```
+
+
+## Save Intermedian Data
+
+```{r intermedian Data}
+
+allinterdir <- paste(params$workdir, "\\intermedian\\", sep="")
+if (!dir.exists(allinterdir)){dir.create(allinterdir)}
+
+interdir <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+                       , "_", params$exprType
+                       , "_", params$corAnalysis_Method
+                       , "_", params$pickMethod
+                       , "_Log2[", params$log, "]"
+                       , "_Exp[", params$exp, "]"
+                       , "_", params$calOrder
+                       , "\\"
+                       , sep="")
+interdir <- paste(allinterdir, interdir, sep="")
+if (!dir.exists(interdir)){
+  dir.create(interdir)
+} else {
+  dir.remove(interdir)
+  dir.create(interdir)
+}
+
+write.csv(SGscores, file.path(interdir, "Signature-Genes_Scores.csv"))
+write.csv(scores_DF, file.path(interdir, "Signatures_Scores.csv"))
+
+```
+
+
+## Pearson correlation analysis
+
+```{r pearson correlation}
+info(logger, "Correlation method:\t", params$corAnalysis_Method)
+
+# 计算相关性
+tryCatch({
+  corAnalysis <- cor(scores_DF, method=params$corAnalysis_Method)
+}, warning = function(w){
+  log4r::warn(logger, w)
+  corAnalysis <- cor(scores_DF, method=params$corAnalysis_Method)
+}, error = function(e){
+  log4r::error(logger, e)
+})
+
+# corAnalysis <- cor(scores_DF, method=params$corAnalysis_Method)
+correlationScores <- data.frame(Term=rownames(corAnalysis), Correlation_Score=corAnalysis[,1])
+correlationScores <- na.omit(correlationScores)
+
+# 降序排列
+correlationScores <- correlationScores[order(correlationScores$Correlation_Score, decreasing = T),]
+
+output_fileName <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+                         , "_GO&PW_"
+                         , "[", params$exprType, "]"
+                         , "_Correlation-Scores_"
+                         , "[", params$corAnalysis_Method, "]"
+                         , "_ScoreMethod-", params$pickMethod
+                         , "_Log2[", params$log, "]"
+                         , "_Exp[", params$exp, "]"
+                         , "_calOrder[", params$calOrder, "]"
+                         , "_", Sys.Date()
+                         , ".csv", sep="")
+# 保存相关系数矩阵
+write.csv(correlationScores,
+          file.path(resultdir, output_fileName),
+          row.names=F)
+
+info(logger, "Output Dir:\t", resultdir)
+info(logger, "Output File:\t", output_fileName, "\n")
+```
+

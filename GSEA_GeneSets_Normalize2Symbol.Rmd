@@ -1,0 +1,192 @@
+---
+title: "GSEA_GeneSets_Normalize2Symbol"
+author: "Botao Wang"
+date: "2022-09-26"
+output: html_document
+
+params:
+  workdir: "E:\\PostGraduate\\Botao\\Code_Verification\\SignatureGenes_GO-PW_Correlation"
+  libdir: "E:\\Code_Example\\R\\GeneSignature\\GeneSignature-Pathways_Correlation\\lib"
+  resultsdir: ".\\results\\"
+  picdir: ".\\pics\\"
+  
+  GOGeneset: ".\\data\\c5.go.v7.5.1.symbols.gmt"
+  PWGeneset: ".\\data\\c2.cp.v7.5.1.symbols.gmt"
+  GeneSet_Name_Normalization: TRUE
+  GeneNameAnno: ".\\data\\Homo_sapiens.gene_info.csv"
+  
+---
+
+```{r setup, include=FALSE}
+# rm(list = ls())
+# .rs.restartR()
+
+library("knitr")
+library("limma")
+library("ComplexHeatmap")
+library("circlize")
+
+knitr::opts_chunk$set(echo = TRUE)
+#* HTML显示结果时同时显示代码
+
+file.exists(params$workdir)
+knitr::opts_knit$set(root.dir = params$workdir)
+#* 设定工作目录
+getwd()
+
+source(file.path(params$lib, "GeneSignature-Pathways_Correlation_Function.R"))
+
+```
+
+## Prepare data
+
+```{r Preparation}
+
+# Read in Gene Sets from GO&PW
+goGeneSet <- readGMT(params$GOGeneset)
+pathwayGeneSet <- readGMT(params$PWGeneset)
+
+# Read in Gene Name Annotation
+geneNameAnno <- read.csv(params$GeneNameAnno, check.names = F)
+
+```
+
+## Gene Name Conversion
+
+
+```{r GeneName Conversion}
+
+#===============================================================================
+#------------------------------ Get Annotation ---------------------------------
+#===============================================================================
+
+
+# Get Synonyms
+#===============================================================================
+
+geneNameAnno_list <- strsplit(geneNameAnno$Synonyms, split="\\|")
+names(geneNameAnno_list) <- geneNameAnno$Symbol
+
+
+# Get Ensembl ID
+#===============================================================================
+
+geneEnsAnno_list <- as.list(geneNameAnno$dbXrefs)
+names(geneEnsAnno_list) <- geneNameAnno$Symbol
+
+###############################################################################
+# debug                                                                       #
+#                                                                             #
+# one_geneEnsAnno <- geneEnsAnno_list[[30585]]                                #
+#                                                                             #
+# oneGene_EnsAnnos <- c()                                                     #
+# if (!is.na(one_geneEnsAnno)){                                               #
+#   one_geneEnsAnno <- unlist(strsplit(one_geneEnsAnno, split="\\|"))         #
+#   for (oneAnno in one_geneEnsAnno){                                         #
+#     if (startsWith(oneAnno, "Ensembl:")){                                   #
+#       oneAnno <- unlist(strsplit(oneAnno, split=":"))[2]                    #
+#       oneGene_EnsAnnos <- c(oneGene_EnsAnnos, oneAnno)                      #
+#     }                                                                       #
+#   }                                                                         #
+#   geneEnsAnno_list[[30585]] <- oneGene_EnsAnnos                             #
+# }                                                                           #
+#                                                                             #
+###############################################################################
+
+for (i in 1:length(geneEnsAnno_list)){
+  one_geneEnsAnno <- geneEnsAnno_list[[i]]                             
+  
+  oneGene_EnsAnnos <- c()
+  if (!is.na(one_geneEnsAnno)){
+    one_geneEnsAnno <- unlist(strsplit(one_geneEnsAnno, split="\\|"))
+      for (oneAnno in one_geneEnsAnno){
+        if (startsWith(oneAnno, "Ensembl:")){
+          oneAnno <- unlist(strsplit(oneAnno, split=":"))[2]
+          oneGene_EnsAnnos <- c(oneGene_EnsAnnos, oneAnno)
+        }
+      }
+    
+    if (!is.null(oneGene_EnsAnnos)){
+      geneEnsAnno_list[[i]] <- oneGene_EnsAnnos
+    } else {
+      geneEnsAnno_list[[i]] <- NA
+    }
+    
+  }
+}
+
+
+# Merge annotations
+#===============================================================================
+
+###############################################################################
+# debug                                                                       #
+#                                                                             #
+# if (!is.na(geneEnsAnno_list[[1]])){                                         #
+#   geneNameAnno_list[[1]] <- c(geneNameAnno_list[[1]],geneEnsAnno_list[[1]]) #
+# }                                                                           #
+#                                                                             #
+###############################################################################
+
+geneAnno_list <- geneEnsAnno_list
+
+if (length(geneNameAnno_list) == length(geneEnsAnno_list)){
+  for (i in 1:length(geneNameAnno_list)){
+    if (!is.na(geneEnsAnno_list[i])){
+      geneAnno_list[[i]] <- c(geneNameAnno_list[[i]],geneEnsAnno_list[[i]])
+    }
+  }
+}
+
+#===============================================================================
+#--------------------------- Get Name Conversion -------------------------------
+#===============================================================================
+
+###############################################################################
+# debug                                                                       #
+#                                                                             #
+# one_geneSet <- goGeneSet[[3]]                                               #
+# !(one_geneSet[1] %in% names(geneNameAnno_list))                             #
+# one_geneSet[1] %in% unlist(geneNameAnno_list[30585])                        #
+###############################################################################
+
+goGeneSet_normalized <- normalize_GeneSet_Name(goGeneSet, geneAnno_list)
+pathwayGeneSet_normalized <- normalize_GeneSet_Name(pathwayGeneSet, geneAnno_list)
+
+
+```
+
+
+
+```{r save result}
+
+
+# save go Gene set
+#===============================================================================
+goGeneSet_normalized_file <- file.path(params$workdir ,params$resultsdir, "goGeneSet_normalized.gmt")
+file.create(goGeneSet_normalized_file)
+goGeneSet_new <- goGeneSet_normalized
+
+for (i in 1:length(goGeneSet_new)){
+  goGeneSet_new[[i]][length(goGeneSet_new[[i]])] <- paste(goGeneSet_new[[i]][length(goGeneSet_new[[i]])], "\n", sep="")
+  
+  line <- c(names(goGeneSet_new)[i], goGeneSet_new[[i]])
+  cat(line, file=goGeneSet_normalized_file, append=TRUE, sep="\t", fill=FALSE)
+}
+
+
+# save pathway Gene set
+#===============================================================================
+
+pathwayGeneSet_normalized_file <- file.path(params$workdir ,params$resultsdir, "pathwayGeneSet_normalized.gmt")
+file.create(pathwayGeneSet_normalized_file)
+pathwayGeneSet_new <- pathwayGeneSet_normalized
+
+for (i in 1:length(pathwayGeneSet_new)){
+  pathwayGeneSet_new[[i]][length(pathwayGeneSet_new[[i]])] <- paste(pathwayGeneSet_new[[i]][length(pathwayGeneSet_new[[i]])], "\n", sep="")
+  
+  line <- c(names(pathwayGeneSet_new)[i], pathwayGeneSet_new[[i]])
+  cat(line, file=pathwayGeneSet_normalized_file, append=TRUE, sep="\t", fill=FALSE)
+}
+
+```
