@@ -180,7 +180,7 @@ for (i in 1:length(SignatureGenes)){
 
 
 if (!is.null(not_convert_gene)){
-  not_convert_gene <- paste(not_convert_gene, sep=",")
+  not_convert_gene <- paste(not_convert_gene, collapse=",")
 }
 if (not_Symbol_Num != convert_num){
   info(logger,
