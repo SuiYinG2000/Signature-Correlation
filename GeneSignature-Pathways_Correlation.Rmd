@@ -10,13 +10,13 @@ params:
   resultdir: "\\results\\"
   picdir: "\\pics\\"
   
-  expression_file: ".\\data\\TCGA_Brain-GBM_AllSample_Gene-Name_Expression_tpm_unstranded_2022-09-27.csv"
+  expression_file: "\\data\\TCGA_Brain-GBM_AllSample_Gene-Name_Expression_tpm_unstranded_2022-09-27.csv"
   exprType: "TPM"
-  GOGeneset: ".\\data\\goGeneSet_normalized.gmt"
-  PWGeneset: ".\\data\\pathwayGeneSet_normalized.gmt"
+  GOGeneset: "\\data\\goGeneSet_normalized.gmt"
+  PWGeneset: "\\data\\pathwayGeneSet_normalized.gmt"
   # whether need to Normalize or not
   GeneSet_Name_Normalized: TRUE
-  GeneNameAnno: ".\\data\\Homo_sapiens.gene_info.csv"
+  GeneNameAnno: "\\data\\Homo_sapiens.gene_info.csv"
   
   SignatureGenes_Name: "m6A_Signature_Genes"
   SignatureGenes: "METTL3,METTL14,WTAP,RBM15,ZC3H13,KIAA1429,METTL16,FTO,ALKBH5"
@@ -116,7 +116,7 @@ info(logger, "Signature Genes:\t", params$SignatureGenes)
 
 ```{r Preparation}
 # Read in expression data
-expr <- read.csv(params$expression_file, row.names=1, check.names=F)
+expr <- read.csv(paste(params$workdir ,params$expression_file ,sep=""), row.names=1, check.names=F)
 info(logger, "Expression Data:\t", params$expression_file)
 info(logger, "Expression Data Type:\t", params$exprType)
 mode(expr[1,1]) == list("numeric")
@@ -125,17 +125,20 @@ mode(expr[1,1]) == list("numeric")
 # Read in Gene Sets from GO&PW
 info(logger, "Gene Sets normalized to Symbol:\t", params$GeneSet_Name_Normalized)
 
-goGeneSet <- readGMT(params$GOGeneset, normalized=params$GeneSet_Name_Normalized)
+goGeneSet <- readGMT(paste(params$workdir, params$GOGeneset, sep=""),
+                     normalized=params$GeneSet_Name_Normalized)
 info(logger, "GO Gene Sets:\t", params$GOGeneset)
 info(logger, paste("GO共有", length(goGeneSet), "个基因集"))
 
-pathwayGeneSet <- readGMT(params$PWGeneset, normalized=params$GeneSet_Name_Normalized)
+pathwayGeneSet <- readGMT(paste(params$workdir, params$PWGeneset, sep=""),
+                          normalized=params$GeneSet_Name_Normalized)
 info(logger, "Pathway Gene Sets:\t", params$PWGeneset)
 info(logger, paste("Pathway共有", length(pathwayGeneSet), "个基因集"))
 
 
 # Read in Gene Name Annotation
-geneNameAnno <- read.csv(params$GeneNameAnno, check.names = F)
+geneNameAnno <- read.csv(paste(params$workdir, params$GeneNameAnno, sep=""),
+                         check.names = F)
 ```
 
 ## Gene Name Conversion
