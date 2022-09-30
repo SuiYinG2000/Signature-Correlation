@@ -58,6 +58,18 @@ source(file.path(params$lib, "GeneSignature-Pathways_Correlation_Function.R"))
 SignatureGenes <- unlist(strsplit(params$SignatureGenes,split=","))
 ```
 
+## Prepare direction
+
+```{r prepare direction}
+
+resultdir <- paste(params$workdir, params$resultdir, sep="")
+picdir <- paste(params$workdir, params$picdir, sep="")
+
+if (!dir.exists(resultdir)){dir.create(resultdir)}
+if (!dir.exists(picdir)){dir.create(picdir)}
+
+```
+
 
 ## Prepare log
 
@@ -92,24 +104,6 @@ info(logger, "Signature Name:\t", params$SignatureGenes_Name)
 info(logger, "Signature Genes:\t", params$SignatureGenes)
 
 ```
-
-
-## Prepare direction
-
-```{r prepare direction}
-
-resultdir <- paste(params$workdir, params$resultdir, sep="")
-picdir <- paste(params$workdir, params$picdir, sep="")
-
-if (!dir.exists(resultdir)){
-  dir.create(resultdir)
-} else {
-  warn(logger, "警告：即将覆盖已有文件：", descript_work)
-}
-if (!dir.exists(picdir)){dir.create(picdir)}
-
-```
-
 
 ## Prepare data
 
@@ -186,7 +180,7 @@ for (i in 1:length(SignatureGenes)){
 
 
 if (!is.null(not_convert_gene)){
-  not_convert_gene <- paste(not_convert_gene, sep=",")
+  not_convert_gene <- paste(not_convert_gene, collapse=",")
 }
 if (not_Symbol_Num != convert_num){
   info(logger,
