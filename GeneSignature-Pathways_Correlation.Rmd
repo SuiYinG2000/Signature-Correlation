@@ -58,6 +58,37 @@ source(file.path(params$lib, "GeneSignature-Pathways_Correlation_Function.R"))
 SignatureGenes <- unlist(strsplit(params$SignatureGenes,split=","))
 ```
 
+
+## Project Description
+
+```{r Description}
+
+describe <- paste(unlist(strsplit(params$SignatureGenes_Name, split="_"))[1],
+                  "-GOPW-Correlation", sep="")
+
+if (params$GeneSet_Name_Normalized){
+  describe <- paste(describe, "Symbol", sep="_")
+} else {
+  describe <- paste(describe, "PartSym", sep="_")
+}
+
+describe <- paste(describe,
+                  unlist(strsplit(params$expression_file, split="_"))[6],
+                  params$corAnalysis_Method,
+                  params$calOrder,
+                  params$pickMethod,
+                  sep="_")
+
+if (params$log){
+  describe <- paste(describe, "log2", sep="_")
+}
+if (params$exp){
+  describe <- paste(describe, "exp", sep="_")
+}
+
+```
+
+
 ## Prepare direction
 
 ```{r prepare direction}
