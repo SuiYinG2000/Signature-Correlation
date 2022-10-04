@@ -8,7 +8,7 @@ libdir <-"E:\\GithubRepository\\Signature-Correlation\\lib"
 
 # expr_files <- c("TCGA_Brain-GBM_AllSample_Gene-Name_Expression_fpkm_unstranded_2022-09-06.csv",
 #                 "TCGA_Brain-GBM_AllSample_Gene-Name_Expression_tpm_unstranded_2022-09-27")
-expr_file <- "TCGA_Brain-GBM_AllSample_Gene-Name_Expression_fpkm_unstranded_2022-09-06.csv"
+expr_file <- "\\data\\TCGA_Brain-GBM_AllSample_Gene-Name_Expression_fpkm_unstranded_2022-09-06.csv"
 
 GOGeneset <- "\\data\\goGeneSet_normalized.gmt"
 PWGeneset <- "\\data\\pathwayGeneSet_normalized.gmt"
