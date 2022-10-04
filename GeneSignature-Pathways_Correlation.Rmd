@@ -7,11 +7,11 @@ output: html_document
 params:
   workdir: "E:\\PostGraduate\\Botao\\Code_Verification\\SignatureGenes_GO-PW_Correlation"
   libdir: "E:\\GithubRepository\\Signature-Correlation\\lib"
-  resultdir: "\\results\\"
-  picdir: "\\pics\\"
+  # resultdir: "\\results\\"
+  # picdir: "\\pics\\"
   
   expression_file: "\\data\\TCGA_Brain-GBM_AllSample_Gene-Name_Expression_tpm_unstranded_2022-09-27.csv"
-  exprType: "TPM"
+  # exprType: "TPM"
   GOGeneset: "\\data\\goGeneSet_normalized.gmt"
   PWGeneset: "\\data\\pathwayGeneSet_normalized.gmt"
   # already been Normalized or not
@@ -93,8 +93,8 @@ if (params$exp){
 
 ```{r prepare direction}
 
-resultdir <- paste(params$workdir, params$resultdir, sep="")
-picdir <- paste(params$workdir, params$picdir, sep="")
+resultdir <- paste(params$workdir, "\\results\\", sep="")
+picdir <- paste(params$workdir, "\\pics\\", sep="")
 
 if (!dir.exists(resultdir)){dir.create(resultdir)}
 if (!dir.exists(picdir)){dir.create(picdir)}
@@ -153,7 +153,7 @@ info(logger, "Signature Genes:\t", params$SignatureGenes)
 expr <- read.csv(paste(params$workdir, params$expression_file, sep=""),
                  row.names=1, check.names=F)
 info(logger, "Expression Data:\t", params$expression_file)
-info(logger, "Expression Data Type:\t", params$exprType)
+info(logger, "Expression Data Type:\t", unlist(strsplit(params$expression_file, split="_"))[6])
 mode(expr[1,1]) == "numeric"
 
 
