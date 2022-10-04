@@ -114,17 +114,19 @@ if (!file.exists(logfile)){file.create(logfile)}
 logger <- create.logger(logfile = paste(logdir, "perform.log", sep=""),
                         level="INFO")
 
-descript_work <- paste("[    "
-                       , unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
-                       , "_", params$exprType
-                       , "_Symbol[", params$GeneSet_Name_Normalized, "]"
-                       , "_", params$corAnalysis_Method
-                       , "_", params$calOrder
-                       , "_", params$pickMethod
-                       , "_Log2[", params$log, "]"
-                       , "_Exp[", params$exp, "]"
-                       , "    ]"
-                       , sep="")
+# descript_work <- paste("[    "
+#                        , unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+#                        , "_", params$exprType
+#                        , "_Symbol[", params$GeneSet_Name_Normalized, "]"
+#                        , "_", params$corAnalysis_Method
+#                        , "_", params$calOrder
+#                        , "_", params$pickMethod
+#                        , "_Log2[", params$log, "]"
+#                        , "_Exp[", params$exp, "]"
+#                        , "    ]"
+#                        , sep="")
+
+descript_work <- paste("[    ", describe, "    ]", sep="")
 
 info(logger, 
      "------------------------------------------",
@@ -384,17 +386,20 @@ if (class(scores_DF[1,1]) == "numeric"){
 allinterdir <- paste(params$workdir, "\\intermedian\\", sep="")
 if (!dir.exists(allinterdir)){dir.create(allinterdir)}
 
-interdir <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
-                       , "_", params$exprType
-                       , "_Symbol[", params$GeneSet_Name_Normalized, "]"
-                       , "_", params$corAnalysis_Method
-                       , "_", params$calOrder
-                       , "_", params$pickMethod
-                       , "_Log2[", params$log, "]"
-                       , "_Exp[", params$exp, "]"
-                       , "\\"
-                       , sep="")
+# interdir <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+#                        , "_", params$exprType
+#                        , "_Symbol[", params$GeneSet_Name_Normalized, "]"
+#                        , "_", params$corAnalysis_Method
+#                        , "_", params$calOrder
+#                        , "_", params$pickMethod
+#                        , "_Log2[", params$log, "]"
+#                        , "_Exp[", params$exp, "]"
+#                        , "\\"
+#                        , sep="")
+
+interdir <- paste(describe, "\\", sep="")
 interdir <- paste(allinterdir, interdir, sep="")
+
 if (!dir.exists(interdir)){
   dir.create(interdir)
 } else {
@@ -429,18 +434,21 @@ correlationScores <- na.omit(correlationScores)
 # 降序排列
 correlationScores <- correlationScores[order(correlationScores$Correlation_Score, decreasing = T),]
 
-output_fileName <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
-                         , "-GO&PW"
-                         , "-Correlation"
-                         , "_[", params$exprType, "]"
-                         , "_Symbol[", params$GeneSet_Name_Normalized, "]"
-                         , "_[", params$corAnalysis_Method, "]"
-                         , "_calOrder[", params$calOrder, "]"
-                         , "_ScoreMethod-", params$pickMethod
-                         , "_Log2[", params$log, "]"
-                         , "_Exp[", params$exp, "]"
-                         , "_", Sys.Date()
-                         , ".csv", sep="")
+# output_fileName <- paste(unlist(strsplit(params$SignatureGenes_Name,split="_"))[1]
+#                          , "-GO&PW"
+#                          , "-Correlation"
+#                          , "_[", params$exprType, "]"
+#                          , "_Symbol[", params$GeneSet_Name_Normalized, "]"
+#                          , "_[", params$corAnalysis_Method, "]"
+#                          , "_calOrder[", params$calOrder, "]"
+#                          , "_ScoreMethod-", params$pickMethod
+#                          , "_Log2[", params$log, "]"
+#                          , "_Exp[", params$exp, "]"
+#                          , "_", Sys.Date()
+#                          , ".csv", sep="")
+
+output_fileName <- paste(describe,"_", Sys.Date(), ".csv", sep="")
+
 # 保存相关系数矩阵
 write.csv(correlationScores,
           file.path(resultdir, output_fileName),
