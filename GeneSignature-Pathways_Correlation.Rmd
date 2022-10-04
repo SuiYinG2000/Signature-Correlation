@@ -24,7 +24,7 @@ params:
   
   # params for func : get_Geneset_Score
   calOrder: "calFirst"
-  # "calFirst" or "normFirst"
+  # "calFirst" or "standFirst"
   # calFirst means calculate signature mean/median expression first
   pickMethod: "mean"
   log: FALSE
@@ -282,7 +282,7 @@ if (params$calOrder == "calFirst"){
   SGscores <- as.numeric(scale(SGscores.raw))
   names(SGscores) <- names(SGscores.raw)
   names(SGscores) == colnames(expr)
-} else if (params$calOrder == "normFirst") {
+} else if (params$calOrder == "standFirst") {
   SGscores <- SGscores.raw
 }
 

@@ -101,7 +101,7 @@ get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log=TRUE, ex
       })
     }
     
-  } else if (calOrder == "normFirst"){
+  } else if (calOrder == "standFirst"){
     # scaleFirst
     Score <- apply(SignatureGenes_expr, 1, function(tmp){
       scale(tmp)
@@ -172,7 +172,7 @@ get_Geneset_Score <-function(geneset, expr, pickMethod="mean", log=TRUE, exp=FAL
       oneGeneSet_Scores <- as.numeric(scale(oneGeneSet_Scores_raw))
       # get sample name
       names(oneGeneSet_Scores) <- names(oneGeneSet_Scores_raw)
-    } else if (calOrder == "normFirst"){
+    } else if (calOrder == "standFirst"){
       oneGeneSet_Scores <- oneGeneSet_Scores_raw
     }
     
