@@ -23,11 +23,11 @@ params:
   corAnalysis_Method: "pearson"
   
   # params for func : get_Geneset_Score
-  calOrder: "calFirst"
+  calOrder: "standFirst"
   # "calFirst" or "standFirst"
   # calFirst means calculate signature mean/median expression first
-  pickMethod: "mean"
-  log: FALSE
+  pickMethod: "median"
+  log: TRUE
   exp: FALSE
 
 ---

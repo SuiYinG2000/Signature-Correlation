@@ -1,3 +1,5 @@
+# rm(list = ls())
+# .rs.restartR()
 
 rmd <- "E:\\GithubRepository\\Signature-Correlation\\GeneSignature-Pathways_Correlation.Rmd"
 
