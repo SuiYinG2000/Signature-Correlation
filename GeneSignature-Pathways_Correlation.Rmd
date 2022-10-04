@@ -14,7 +14,7 @@ params:
   exprType: "TPM"
   GOGeneset: "\\data\\goGeneSet_normalized.gmt"
   PWGeneset: "\\data\\pathwayGeneSet_normalized.gmt"
-  # whether need to Normalize or not
+  # already been Normalized or not
   GeneSet_Name_Normalized: TRUE
   GeneNameAnno: "\\data\\Homo_sapiens.gene_info.csv"
   
@@ -121,7 +121,7 @@ expr <- read.csv(paste(params$workdir, params$expression_file, sep=""),
                  row.names=1, check.names=F)
 info(logger, "Expression Data:\t", params$expression_file)
 info(logger, "Expression Data Type:\t", params$exprType)
-mode(expr[1,1]) == list("numeric")
+mode(expr[1,1]) == "numeric"
 
 
 # Read in Gene Sets from GO&PW
