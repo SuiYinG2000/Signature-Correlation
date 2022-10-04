@@ -257,7 +257,6 @@ if (params$calOrder == "calFirst"){
 
 SG_Scores_DF <- rbind(SG_Scores_DF, SGscores)
 SG_Scores_DF <- SG_Scores_DF[-1,]
-rownames(SG_Scores_DF)[1] <- params$SignatureGenes_Name
 SG_Scores_DF <- as.data.frame(lapply(SG_Scores_DF, as.numeric))
 ```
 
