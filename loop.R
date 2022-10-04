@@ -45,7 +45,7 @@ for (corMethod in corAnalysis_Methods){
                            pickMethod = pickMethod,
                            log = log,
                            exp = exp)
-            rmarkdown::render(rmd, params=parmas)
+            rmarkdown::render(rmd, params=params, envir=new.env())
           }
         }
       }
