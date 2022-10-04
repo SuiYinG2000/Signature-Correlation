@@ -370,7 +370,7 @@ if (!dir.exists(interdir)){
   warn(logger, "已存在的中间数据被覆盖！")
 }
 
-write.csv(SGscores, file.path(interdir, "Signature-Genes_Scores.csv"))
+# write.csv(SGscores, file.path(interdir, "Signature-Genes_Scores.csv"))
 write.csv(scores_DF, file.path(interdir, "Signatures_Scores.csv"))
 
 ```
