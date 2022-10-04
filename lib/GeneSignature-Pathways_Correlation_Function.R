@@ -185,8 +185,10 @@ get_Geneset_Score <-function(geneset, expr, pickMethod="mean", log=TRUE, exp=FAL
   close(progressBar)
   
   Geneset_Scores_DF <- Geneset_Scores_DF[-1,]
+  setNames <- rownames(Geneset_Scores_DF)
   
   Geneset_Scores_DF <- as.data.frame(lapply(Geneset_Scores_DF, as.numeric))
+  rownames(Geneset_Scores_DF) <- setNames
   
   message(paste("提示：完成！共计算了",length(rownames(Geneset_Scores_DF)),"个基因集的GeneSignature打分",sep=""))
   return(Geneset_Scores_DF)
