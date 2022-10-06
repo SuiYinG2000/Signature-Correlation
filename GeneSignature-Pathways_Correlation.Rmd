@@ -81,9 +81,6 @@ describe <- paste(describe,
                   params$log,
                   sep="_")
 
-if (params$log){
-  describe <- paste(describe, "log2", sep="_")
-}
 # if (params$log){
 #   describe <- paste(describe, "log2", sep="_")
 # }
