@@ -120,6 +120,17 @@ get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log="log2(n)
         mean(tmp)
       })
     }
+  } else if (calOrder == "noStand"){
+    if (pickMethod == "median"){
+      Score <- apply(SignatureGenes_expr,2,function(tmp){
+        median(tmp)
+        #** 1: 按行操作， 2：按列操作
+      })
+    } else if (pickMethod == "mean"){
+      Score <- apply(SignatureGenes_expr,2,function(tmp){
+        mean(tmp)
+      })
+    }
   }
   
   # fix methods
@@ -176,6 +187,8 @@ get_Geneset_Score <-function(geneset, expr, pickMethod="mean", log=TRUE, exp=FAL
       # get sample name
       names(oneGeneSet_Scores) <- names(oneGeneSet_Scores_raw)
     } else if (calOrder == "standFirst"){
+      oneGeneSet_Scores <- oneGeneSet_Scores_raw
+    } else if (calOrder == "noStand"){
       oneGeneSet_Scores <- oneGeneSet_Scores_raw
     }
     
