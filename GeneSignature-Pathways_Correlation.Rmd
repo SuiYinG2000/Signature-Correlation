@@ -362,6 +362,7 @@ tryCatch({
 ```{r Merge Scores}
 # merge SG&GO&PW scores dataframe
 scores_DF <- rbind(SG_Scores_DF, GO_Scores_DF, PW_Scores_DF)
+scores_DF <- na.omit(scores_DF)
 
 scores_DF1 <- data.frame(t(scores_DF),stringsAsFactors=F)
 # 转置之后数据变为矩阵，需要重新变成数据框，stringsAsFactors=F，否则下一步转数值型会出错
