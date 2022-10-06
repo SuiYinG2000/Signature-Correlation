@@ -39,9 +39,9 @@ params:
 # .rs.restartR()
 
 library("knitr")
-library("limma")
-library("ComplexHeatmap")
-library("circlize")
+# library("limma")
+# library("ComplexHeatmap")
+# library("circlize")
 library("log4r")
 
 knitr::opts_chunk$set(echo = TRUE)
