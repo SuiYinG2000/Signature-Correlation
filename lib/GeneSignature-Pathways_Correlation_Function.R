@@ -72,7 +72,7 @@ normalize_GeneSet_Name <- function(geneSet, geneNameAnno){
 
 
 
-get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log=TRUE, exp=FALSE, calOrder){
+get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log="log2(n)", exp=FALSE, calOrder){
   
   # missNum <- length(genes) - length(rownames(data[rownames(data) %in% genes,]))
   # if (missNum != 0){
@@ -82,8 +82,11 @@ get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log=TRUE, ex
   # }
   
   SignatureGenes_expr <- data[rownames(data) %in% genes,]
-  if (log == TRUE){
+  
+  if (log == "log2(n+1)"){
     SignatureGenes_expr <- log2(SignatureGenes_expr+1)
+  } else if(log == "log2(n)"){
+    SignatureGenes_expr <- log2(SignatureGenes_expr)
   }
   
   # extract expression for score

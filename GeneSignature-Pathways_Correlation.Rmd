@@ -27,7 +27,8 @@ params:
   # "calFirst" or "standFirst"
   # calFirst means calculate signature mean/median expression first
   pickMethod: "median"
-  log: TRUE
+  log: "log2(n)"
+  # "log2(n)" or "log2(n+1)"
   exp: FALSE
 
 ---
@@ -77,11 +78,15 @@ describe <- paste(describe,
                   params$corAnalysis_Method,
                   params$calOrder,
                   params$pickMethod,
+                  params$log,
                   sep="_")
 
 if (params$log){
   describe <- paste(describe, "log2", sep="_")
 }
+# if (params$log){
+#   describe <- paste(describe, "log2", sep="_")
+# }
 if (params$exp){
   describe <- paste(describe, "exp", sep="_")
 }
