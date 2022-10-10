@@ -78,12 +78,11 @@ describe <- paste(describe,
                   params$corAnalysis_Method,
                   params$calOrder,
                   params$pickMethod,
-                  params$log,
                   sep="_")
 
-# if (params$log){
-#   describe <- paste(describe, "log2", sep="_")
-# }
+if (params$log != FALSE){
+  describe <- paste(describe, params$log, sep="_")
+}
 if (params$exp){
   describe <- paste(describe, "exp", sep="_")
 }
