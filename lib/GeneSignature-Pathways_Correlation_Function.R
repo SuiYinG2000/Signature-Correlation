@@ -86,6 +86,8 @@ get_GeneSignature_Score <- function(data, genes, pickMethod="mean", log="log2(n)
   if (log == "log2(n+1)"){
     SignatureGenes_expr <- log2(SignatureGenes_expr+1)
   } else if(log == "log2(n)"){
+    SignatureGenes_expr[SignatureGenes_expr==0] <- NA
+    SignatureGenes_expr <- na.omit(SignatureGenes_expr)
     SignatureGenes_expr <- log2(SignatureGenes_expr)
   } else if (log == FALSE) {}
   
