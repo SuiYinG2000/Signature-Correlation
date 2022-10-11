@@ -31,21 +31,30 @@ for (corMethod in corAnalysis_Methods){
       for (log in logs){
         for (exp in exps){
           if (!(log==T & exp==T)){
-            params <- list(workdir = workdir,
-                           libdir = libdir,
-                           expression_file = expr_file,
-                           GOGeneset = GOGeneset,
-                           PWGeneset = PWGeneset,
-                           GeneSet_Name_Normalized = GeneSet_Name_Normalized,
-                           GeneNameAnno = GeneNameAnno,
-                           SignatureGenes_Name = SignatureGenes_Name,
-                           SignatureGenes = SignatureGenes,
-                           corAnalysis_Method = corMethod,
-                           calOrder = calOrder,
-                           pickMethod = pickMethod,
-                           log = log,
-                           exp = exp)
-            rmarkdown::render(rmd, params=params, envir=new.env())
+            tryCatch({
+              params <- list(workdir = workdir,
+                             libdir = libdir,
+                             expression_file = expr_file,
+                             GOGeneset = GOGeneset,
+                             PWGeneset = PWGeneset,
+                             GeneSet_Name_Normalized = GeneSet_Name_Normalized,
+                             GeneNameAnno = GeneNameAnno,
+                             SignatureGenes_Name = SignatureGenes_Name,
+                             SignatureGenes = SignatureGenes,
+                             corAnalysis_Method = corMethod,
+                             calOrder = calOrder,
+                             pickMethod = pickMethod,
+                             log = log,
+                             exp = exp)
+              rmarkdown::render(rmd, params=params, envir=new.env())
+              gc()
+            }, warning = function(w){
+              gc()
+              next
+            }, error = function(e){
+              gc()
+              next
+            })
           }
         }
       }
