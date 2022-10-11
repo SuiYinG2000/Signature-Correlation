@@ -31,7 +31,7 @@ for (corMethod in corAnalysis_Methods){
       for (log in logs){
         for (exp in exps){
           if (!(log==T & exp==T)){
-            tryCatch({
+            exception <- tryCatch({
               params <- list(workdir = workdir,
                              libdir = libdir,
                              expression_file = expr_file,
@@ -47,14 +47,22 @@ for (corMethod in corAnalysis_Methods){
                              log = log,
                              exp = exp)
               rmarkdown::render(rmd, params=params, envir=new.env())
-              gc()
             }, warning = function(w){
-              gc()
-              next
+              w
             }, error = function(e){
+              e
+            })
+            
+            # exception handling
+            if (inherits(exception, "warning")){
               gc()
               next
-            })
+            } else if (inherits(exception, "error")){
+              gc()
+              next
+            }
+            gc()
+            
           }
         }
       }
