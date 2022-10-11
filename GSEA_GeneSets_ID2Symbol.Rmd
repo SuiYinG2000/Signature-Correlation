@@ -1,0 +1,141 @@
+---
+title: "GSEA_GeneSets_Normalize2Symbol"
+author: "Botao Wang"
+date: "2022-09-26"
+output: html_document
+
+params:
+  workdir: "E:\\PostGraduate\\Botao\\Code_Verification\\SignatureGenes_GO-PW_Correlation"
+  libdir: "E:\\Code_Example\\R\\GeneSignature\\GeneSignature-Pathways_Correlation\\lib"
+  resultsdir: ".\\results\\"
+  picdir: ".\\pics\\"
+  
+  GOGeneset: ".\\data\\c5.go.v2022.1.Hs.entrez.gmt"
+  PWGeneset: ".\\data\\c2.cp.v2022.1.Hs.entrez.gmt"
+  GeneNameAnno: ".\\data\\Homo_sapiens.gene_info.csv"
+  
+---
+
+```{r setup, include=FALSE}
+# rm(list = ls())
+# .rs.restartR()
+
+library("knitr")
+# library("limma")
+# library("ComplexHeatmap")
+# library("circlize")
+
+knitr::opts_chunk$set(echo = TRUE)
+#* HTML显示结果时同时显示代码
+
+file.exists(params$workdir)
+knitr::opts_knit$set(root.dir = params$workdir)
+#* 设定工作目录
+getwd()
+
+source(file.path(params$lib, "GeneSignature-Pathways_Correlation_Function.R"))
+
+```
+
+## Prepare data
+
+```{r Preparation}
+
+# Read in Gene Sets from GO&PW
+goGeneSet <- readGMT(params$GOGeneset)
+pathwayGeneSet <- readGMT(params$PWGeneset)
+
+# Read in Gene Name Annotation
+geneNameAnno <- read.csv(params$GeneNameAnno, check.names = F)
+
+```
+
+## Gene Name Conversion
+
+
+```{r GeneName Conversion}
+
+#===============================================================================
+#---------------------------- Gene ID Conversion -------------------------------
+#===============================================================================
+
+
+# GO Gene-Sets ID Convert to Symbol
+#===============================================================================
+
+goGeneSet_new <- goGeneSet
+message("提示：正在将ID统一规范为Symbol：")
+progressBar <- txtProgressBar(style=3)
+setNum <- 1
+geneNum <- 0
+for (i in 1:length(goGeneSet)){
+  setTxtProgressBar(progressBar, setNum/length(goGeneSet))
+  
+  for (j in 1:length(goGeneSet[[i]])){
+    position <- which(geneNameAnno$GeneID == goGeneSet[[i]][j])
+    goGeneSet_new[[i]][j] <- geneNameAnno$Symbol[position]
+    
+    geneNum <- geneNum+1
+  }
+  setNum <- setNum+1
+}
+close(progressBar)
+message(paste("完成！GO共转换了", setNum, "个基因集，共转换了", geneNum, "个基因ID"))
+
+# Pathway Gene-Sets ID Convert to Symbol
+#===============================================================================
+
+pathwayGeneSet_new <- pathwayGeneSet
+message("提示：正在将ID统一规范为Symbol：")
+progressBar <- txtProgressBar(style=3)
+setNum <- 1
+geneNum <- 0
+for (i in 1:length(pathwayGeneSet)){
+  setTxtProgressBar(progressBar, setNum/length(pathwayGeneSet))
+  
+  for (j in 1:length(pathwayGeneSet[[i]])){
+    position <- which(geneNameAnno$GeneID == pathwayGeneSet[[i]][j])
+    pathwayGeneSet_new[[i]][j] <- geneNameAnno$Symbol[position]
+    
+    geneNum <- geneNum+1
+  }
+  setNum <- setNum+1
+}
+close(progressBar)
+message(paste("完成！Pathway共转换了", setNum, "个基因集，共转换了", geneNum, "个基因ID"))
+
+
+```
+
+
+
+```{r save result}
+
+
+# save go Gene set
+#===============================================================================
+goGeneSet_normalized_file <- file.path(params$workdir ,params$resultsdir, "goGeneSet_normalized.gmt")
+file.create(goGeneSet_normalized_file)
+
+for (i in 1:length(goGeneSet_new)){
+  goGeneSet_new[[i]][length(goGeneSet_new[[i]])] <- paste(goGeneSet_new[[i]][length(goGeneSet_new[[i]])], "\n", sep="")
+  
+  line <- c(names(goGeneSet_new)[i], goGeneSet_new[[i]])
+  cat(line, file=goGeneSet_normalized_file, append=TRUE, sep="\t", fill=FALSE)
+}
+
+
+# save pathway Gene set
+#===============================================================================
+
+pathwayGeneSet_normalized_file <- file.path(params$workdir ,params$resultsdir, "pathwayGeneSet_normalized.gmt")
+file.create(pathwayGeneSet_normalized_file)
+
+for (i in 1:length(pathwayGeneSet_new)){
+  pathwayGeneSet_new[[i]][length(pathwayGeneSet_new[[i]])] <- paste(pathwayGeneSet_new[[i]][length(pathwayGeneSet_new[[i]])], "\n", sep="")
+  
+  line <- c(names(pathwayGeneSet_new)[i], pathwayGeneSet_new[[i]])
+  cat(line, file=pathwayGeneSet_normalized_file, append=TRUE, sep="\t", fill=FALSE)
+}
+
+```
