@@ -21,8 +21,8 @@ SignatureGenes <- "METTL3,METTL14,WTAP,RBM15,ZC3H13,KIAA1429,METTL16,FTO,ALKBH5"
 corAnalysis_Methods <- c("pearson", "spearman")
 calOrders <- c("calFirst", "standFirst")
 pickMethods <- c("median", "mean")
-logs <- c(TRUE, FALSE)
 exps <- c(TRUE, FALSE)
+logs <- c("log2(n)","log2(n+1)", FALSE)
 
 
 for (corMethod in corAnalysis_Methods){
