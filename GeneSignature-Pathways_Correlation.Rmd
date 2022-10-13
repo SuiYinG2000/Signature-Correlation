@@ -67,14 +67,34 @@ SignatureGenes <- unlist(strsplit(params$SignatureGenes,split=","))
 describe <- paste(unlist(strsplit(params$SignatureGenes_Name, split="_"))[1],
                   "-GOPW-Correlation", sep="")
 
+expression_file <- unlist(strsplit(params$expression_file, split="\\\\"))[3]
+if (startsWith(expression_file, "TCGA")){
+  describe <- paste(describe, "TCGA", sep="_")
+} else if (startsWith(expression_file, "CGGA")){
+  describe <- paste(describe, "CGGA", sep="_")
+}
+
 if (params$GeneSet_Name_Normalized){
   describe <- paste(describe, "Symbol", sep="_")
 } else {
   describe <- paste(describe, "PartSym", sep="_")
 }
 
+if (startsWith(expression_file, "TCGA")){
+  describe <- paste(describe,
+                    unlist(strsplit(params$expression_file, split="_"))[6],
+                    sep="_")
+} else if (startsWith(expression_file, "CGGA")){
+  exprType <- unlist(strsplit(params$expression_file, split="\\."))[3]
+  exprType <- unlist(strsplit(exprType, split="-"))[1]
+  describe <- paste(describe,
+                    exprType,
+                    sep="_")
+}
+
+
+
 describe <- paste(describe,
-                  unlist(strsplit(params$expression_file, split="_"))[6],
                   params$corAnalysis_Method,
                   params$calOrder,
                   params$pickMethod,
