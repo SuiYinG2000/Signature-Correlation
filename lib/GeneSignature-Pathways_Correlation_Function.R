@@ -177,12 +177,31 @@ get_Geneset_Score <-function(geneset, expr, pickMethod="mean", log=TRUE, exp=FAL
     # extract one set's genes
     oneGeneSet_Genes <- geneset[[name]]
     
+    # # calculate GeneSignature scores
+    # oneGeneSet_Scores_raw <- get_GeneSignature_Score(expr, oneGeneSet_Genes,
+    #                                                  pickMethod = pickMethod,
+    #                                                  log = log,
+    #                                                  exp = exp,
+    #                                                  calOrder = calOrder)
+    
     # calculate GeneSignature scores
-    oneGeneSet_Scores_raw <- get_GeneSignature_Score(expr, oneGeneSet_Genes,
-                                                     pickMethod = pickMethod,
-                                                     log = log,
-                                                     exp = exp,
-                                                     calOrder = calOrder)
+    exception <- tryCatch({
+      oneGeneSet_Scores_raw <- get_GeneSignature_Score(expr, oneGeneSet_Genes,
+                                                       pickMethod = pickMethod,
+                                                       log = log,
+                                                       exp = exp,
+                                                       calOrder = calOrder)
+    }, warning=function(w){
+      w
+    }, error=function(e){
+      e
+    })
+    if (inherits(exception, "warning")){
+      next
+    } else if(inherits(exception, "error")){
+      next
+    }
+    
     # # scale scores
     if (calOrder == "calFirst"){
       oneGeneSet_Scores <- as.numeric(scale(oneGeneSet_Scores_raw))
