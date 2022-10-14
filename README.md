@@ -33,6 +33,39 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
         .\lib\GeneSignature-Pathways_Correlation_Function.R：GeneSignature-Pathways_Correlation.Rmd  
 
 2、 参数  
-    * workdir：工作目录  
-    * libdir：配套自定义函数集
-    * 
+    * `workdir`：工作目录  
+    * `libdir`：配套自定义函数集  
+    * `expression_file`；表达谱数据  
+        * "\\data\\XXX.csv"    
+    * `GOGeneSet`：GO基因集  
+        * "\\data\\XXX.gmt"    
+    * `PWGeneSet`：Pathway基因集  
+        * "\\data\\XXX.gmt"    
+    * `GeneSet_Name_Normalized`：基因集基因名称是否通过GSEA_GeneSets_ID2Symbol.Rmd或GSEA_GeneSets_Normalize2Symbol.Rmd进行转换  
+        * TRUE  
+        * FALSE    
+    * `GeneNameAnno`：Gene名称对应Symbol注释文件  
+        * "\\data\\XXX.csv"    
+    * `SignatureGenes_Name`：基因Signature的名称或单个基因名称  
+        * "m6A_Signature_Genes"  
+        * "STK26"  
+    * `SignatureGenes`：基因Signature中基因集，用逗号","分隔  
+    * `corAnalysis_Method`：相关性分析方法：  
+        * "pearson"  
+        * "spearman"  
+    * `calOrder`：计算Signature时标准化的选择：  
+        * standFirst：每个基因先在所有样本中进行标准化，再计算Signature Score  
+        * calFirst：先计算Signature Score，再进行标准化  
+        * noStand：不进行标准化  
+    * `pickMethod`：计算Signature Score的方法：  
+        * mean：每个样本中Signature Genes的平均表达值  
+        * median：每个样本中Signature Genes的中间表达值  
+    * `log`：对数转换  
+        * log2(n)  
+        * log2(n+1)  
+        * FALSE  
+    * `exp`：取幂  
+        * TRUE  
+        * FALSE  
+
+
