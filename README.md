@@ -33,12 +33,12 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
         .\lib\GeneSignature-Pathways_Correlation_Function.R：GeneSignature-Pathways_Correlation.Rmd  
 
 2、 参数  
-    * `workdir`：工作目录  
-    * `libdir`：配套自定义函数集  
-    * `expression_file`：表达谱数据  
-        >>* "\\data\\XXX.csv"    
-    * `GOGeneSet`：GO基因集  
-        * "\\data\\XXX.gmt"    
+    + `workdir`：工作目录  
+    + `libdir`：配套自定义函数集  
+    + `expression_file`：表达谱数据  
+        + "\\data\\XXX.csv"    
+    *`GOGeneSet`：GO基因集
+        *"\\data\\XXX.gmt"    
     * `PWGeneSet`：Pathway基因集  
         * "\\data\\XXX.gmt"    
     * `GeneSet_Name_Normalized`：基因集基因名称是否通过GSEA_GeneSets_ID2Symbol.Rmd或GSEA_GeneSets_Normalize2Symbol.Rmd进行转换  
