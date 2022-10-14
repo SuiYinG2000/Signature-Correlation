@@ -35,8 +35,8 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
 2、 参数  
     * `workdir`：工作目录  
     * `libdir`：配套自定义函数集  
-    * `expression_file`；表达谱数据  
-        * "\\data\\XXX.csv"    
+    * `expression_file`：表达谱数据  
+        >>* "\\data\\XXX.csv"    
     * `GOGeneSet`：GO基因集  
         * "\\data\\XXX.gmt"    
     * `PWGeneSet`：Pathway基因集  
