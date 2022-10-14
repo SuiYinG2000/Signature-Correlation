@@ -14,7 +14,7 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
 ## 使用  
 ### GeneSignature-Pathways_Correlation.Rmd  
 1、 材料  
-注意：运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
+**注意：**运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
     1.1、 表达谱数据：来自TCGA或CGGA的数据，或者其他表达谱数据  
         **数据要求：**行为基因，列为样本，且为csv格式  
         1）TCGA数据：可以从TCGA官网下载数据并通过script：TCGA_Rawdata_Merge-Expression.Rmd，或者其他方式获得  
