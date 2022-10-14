@@ -13,8 +13,8 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
     * .\lib\GeneSignature-Pathways_Correlation_Function.R：GeneSignature-Pathways_Correlation.Rmd的配套自定义函数  
 ## 使用  
 ### GeneSignature-Pathways_Correlation.Rmd  
-1. 材料  
-**注意：**运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
+1、 材料  
+注意：运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
     1.1、 表达谱数据：来自TCGA或CGGA的数据，或者其他表达谱数据  
         **数据要求：**行为基因，列为样本，且为csv格式  
         1）TCGA数据：可以从TCGA官网下载数据并通过script：TCGA_Rawdata_Merge-Expression.Rmd，或者其他方式获得  
@@ -28,3 +28,10 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
         （原因：若下载Gene Symbols的文件，基因集会少于网站所展示的数量，同时部分基因并不是Symbol）  
         需要同时下载**GO本体论**和**Pathway**数据  
         **注意**可以通过**GSEA_GeneSets_ID2Symbol.Rmd**或者**GSEA_GeneSets_Normalize2Symbol.Rmd**将基因集统一转换为Symbol  
+    1.4、配套自定义函数集  
+        .\lib\GeneSignature-Pathways_Correlation_Function.R：GeneSignature-Pathways_Correlation.Rmd  
+
+2、 参数  
+    * workdir：工作目录  
+    * libdir：配套自定义函数集
+    * 
