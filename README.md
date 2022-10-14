@@ -13,17 +13,18 @@ PS：也可以用于**单个基因**与生物过程、通路之间的相关性分析。
     * .\lib\GeneSignature-Pathways_Correlation_Function.R：GeneSignature-Pathways_Correlation.Rmd的配套自定义函数  
 ## 使用  
 ### GeneSignature-Pathways_Correlation.Rmd  
+
 1、 材料  
-**注意：**运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
+注意：运行脚本需要将所有原始数据放置于工作目录下的data文件夹中  
     1.1、 表达谱数据：来自TCGA或CGGA的数据，或者其他表达谱数据  
-        **数据要求：**行为基因，列为样本，且为csv格式  
+        数据要求：行为基因，列为样本，且为csv格式  
         1）TCGA数据：可以从TCGA官网下载数据并通过script：TCGA_Rawdata_Merge-Expression.Rmd，或者其他方式获得  
         2）CGGA数据：可以从CGGA官网下载数据并通过Project：[CGGA_RawData_Merge-Combat](https://github.com/SuiYinG2000/CGGA_RawData_Merge-Combat)，或其他方式获得  
         3）其他表达谱数据  
     1.2、 Gene名称对应Symbol注释文件  
         推荐从NCBI GENE上下载[Homo_sapiens.gene_info.csv](https://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz)  
     1.3、 GO本体论和通路基因集  
-        **数据要求：**需为gmt格式  
+        数据要求：需为gmt格式  
         推荐从GSEA [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb)网站上下载**Gene ID**组成的基因集文件  
         （原因：若下载Gene Symbols的文件，基因集会少于网站所展示的数量，同时部分基因并不是Symbol）  
         需要同时下载**GO本体论**和**Pathway**数据  
